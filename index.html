@@ -35,7 +35,6 @@
   .title{ font-size:2.2rem; margin-bottom:10px; text-shadow:0 0 10px black; }
   .clock{ font-size:5.2rem; font-weight:700; letter-spacing:2px; text-shadow:0 0 12px black; }
   .ampm{ font-size:1.6rem; margin-top:8px; font-weight:700; text-shadow:0 0 8px black; }
-  .sub{ margin-top:12px; opacity:0.9; }
   @media(max-width:600px){
     .clock{ font-size:3.2rem; }
     .title{ font-size:1.4rem; }
@@ -49,12 +48,10 @@
     <div class="title">🇩🇴 Hora en República Dominicana</div>
     <div id="clock" class="clock">--:--:--</div>
     <div id="ampm" class="ampm">AM</div>
-    <div class="sub">Tiempo oficial de RD (America/Santo_Domingo)</div>
   </div>
 
 <script>
 (function(){
-  // Crea un formateador que nos entregue las partes según la zona horaria RD
   const dtf = new Intl.DateTimeFormat('es-DO', {
     timeZone: 'America/Santo_Domingo',
     hour: '2-digit',
@@ -63,17 +60,13 @@
     hour12: true
   });
 
-  // Devuelve {hour, minute, second, dayPeriod} con ceros ya aplicados
   function getRDParts(){
     const parts = dtf.formatToParts(new Date());
     const map = {};
     for(const p of parts){
       if(p.type !== 'literal') map[p.type] = p.value;
     }
-    // Algunos navegadores devuelven hour en formato 12h ya con 01..12; otros pueden devolver '0' raros.
-    // Nos aseguramos de normalizar: hour como número entre 1-12 y padStart a 2.
     let hour = map.hour ?? '00';
-    // normalize possible "0" -> "12" for midnight if necessary
     if(hour === '0') hour = '12';
     hour = String(hour).padStart(2,'0');
     const minute = String(map.minute ?? '00').padStart(2,'0');
@@ -88,10 +81,8 @@
     document.getElementById('ampm').textContent = dayPeriod;
   }
 
-  // Actualiza cada segundo pero sincronizando con el segundo real para evitar drift
   function startTicker(){
     updateClock();
-    // calcular ms hasta el siguiente segundo exacto
     const now = new Date();
     const msToNext = 1000 - now.getMilliseconds();
     setTimeout(function(){
